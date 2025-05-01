@@ -27,7 +27,7 @@ public class EnemySpawner : MonoBehaviour
         {
             GameObject clone = Instantiate(enemyPrefab);    //적 오브젝트 생성
             Enemy enemy = clone.GetComponent<Enemy>();      //클론 가져오기
-            enemy.SetUp(wayPoints);                         //적 이동 함수 루틴 실행
+            enemy.SetUp(this, wayPoints);                         //적 이동 함수 루틴 실행
             enemyList.Add(enemy);                           //적이 생성되면 적 리스트에 추가
             yield return new WaitForSeconds(spawnTime);     //대기
         }
