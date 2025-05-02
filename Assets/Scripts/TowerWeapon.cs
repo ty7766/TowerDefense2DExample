@@ -19,7 +19,7 @@ public class TowerWeapon : MonoBehaviour
     [SerializeField]
     private float attackRange = 2.0f;                               //공격 범위
     [SerializeField]
-    private float attackDamage = 1;                                 //공격 대미지
+    private int attackDamage = 1;                                 //공격 대미지
 
     private WeaponState weaponState = WeaponState.SearchTarget;     //타워 무기 상태 (1. 적 탐지)
     private Transform attackTarget = null;                          //공격 대상(2. 적 공격)
