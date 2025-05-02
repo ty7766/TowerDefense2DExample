@@ -2,13 +2,15 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    private Movement2D movement2D;
-    private Transform target;
+    private Movement2D  movement2D;
+    private Transform   target;
+    private int         damage;
 
-    public void SetUp(Transform target)
+    public void SetUp(Transform target, int damage)
     {
         movement2D = GetComponent<Movement2D>();
         this.target = target;
+        this.damage = damage;
     }
 
     private void Update()
@@ -33,8 +35,9 @@ public class Projectile : MonoBehaviour
         if (!collision.CompareTag("Enemy")) return; //적이 아닌 대상과 부딪힘
         if (collision.transform != target) return;  //현재 target인 적이 아님
 
-        //탄환이 명중하면 적 삭제 & 탄환 삭제
-        collision.GetComponent<Enemy>().OnDie();
+        //탄환이 명중하면 [대미지]만큼 적 체력 감소
+        collision.GetComponent<EnemyHP>().TakeDamage(damage);
+        //탄환 제거
         Destroy(gameObject);
     }
 }
