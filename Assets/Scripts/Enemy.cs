@@ -2,6 +2,8 @@ using JetBrains.Annotations;
 using System.Collections;
 using UnityEngine;
 
+//적 오브젝트가 탄환에 맞아서 제거된건지, 도착해서 제거된건지를 구별
+public enum EnemyDestroyType { Kill = 0, Arrive}
 public class Enemy : MonoBehaviour
 {
     //Mech : Enemy Obj가 WayPoint를 확인하면 다음 순서의 WayPoint로 이동
@@ -63,13 +65,14 @@ public class Enemy : MonoBehaviour
             Vector3 direction = (wayPoints[currentIndex].position - transform.position).normalized;
             movement2D.MoveTo(direction);
         }
+        //적이 End에 도착하면
         else
-            OnDie();
+            OnDie(EnemyDestroyType.Arrive);
     }
 
-    public void OnDie()
+    public void OnDie(EnemyDestroyType type)
     {
         //적이 삭제될 때 리스트에서도 제거 해야되기 때문에 여기서 제거하지 않고 EnemySpawner로 넘기기
-        enemySpawner.DestroyEnemy(this);
+        enemySpawner.DestroyEnemy(type, this);
     }
 }

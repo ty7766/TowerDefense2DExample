@@ -11,6 +11,9 @@ public class EnemyHP : MonoBehaviour
     private Enemy enemy;
     private SpriteRenderer spriteRenderer;  //적 오브젝트 색상
 
+    public float MaxHP => maxHP;
+    public float CurrentHP => currentHP;
+
     private void Awake()
     {
         currentHP = maxHP;
@@ -35,7 +38,7 @@ public class EnemyHP : MonoBehaviour
         if (currentHP <= 0)
         {
             isDie = true;
-            enemy.OnDie();
+            enemy.OnDie(EnemyDestroyType.Kill);
         }
     }
 
