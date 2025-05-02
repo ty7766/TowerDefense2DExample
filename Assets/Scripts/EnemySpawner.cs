@@ -17,17 +17,20 @@ public class EnemySpawner : MonoBehaviour
     private Transform[] wayPoints;      //적 오브젝트 이동 경로
     [SerializeField]
     private PlayerHP playerHP;          //플레이어의 체력 컴포넌트
+    [SerializeField]
+    private PlayerGold playerGold;      //플레이어의 골드
 
     private List<Enemy> enemyList;
     public List<Enemy> EnemyList => enemyList;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // -----------초기화-----------
     void Awake()
     {
         enemyList = new List<Enemy>();
         StartCoroutine("SpawnEnemy");
     }
 
+    // ---------- 적 오브젝트 & UI 생성 ------------
     private IEnumerator SpawnEnemy()
     {
         while (true)
@@ -42,18 +45,25 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    public void DestroyEnemy(EnemyDestroyType type, Enemy enemy)
+    //--------- 적 오브젝트 처리(End에 왔을때, 사망했을 때) ---------
+    public void DestroyEnemy(EnemyDestroyType type, Enemy enemy, int gold)
     {
-        //적이 End에 도착하면 플레이어 체력 -1
+        //적이 End에 도착했을 때
         if (type == EnemyDestroyType.Arrive)
         {
             playerHP.TakeDamage(1);
+        }
+        //적이 탄환에 맞아 사망했을 때
+        else if (type == EnemyDestroyType.Kill)
+        {
+            playerGold.CurrentGold += gold;
         }
 
         enemyList.Remove(enemy);
         Destroy(enemy.gameObject);
     }
 
+    //---------적 UI가 적 오브젝트에 붙게 만들기 ------------
     private void SpawnEnemyHPSlider(GameObject enemy)
     {
         GameObject sliderClone = Instantiate(enemyHPSliderPrefab);  //SliderUI 생성

@@ -14,8 +14,12 @@ public class Enemy : MonoBehaviour
     private EnemySpawner enemySpawner;      //적 삭제를 본인이 하지 않고 EnemySpawner에 전달
 
     [SerializeField]
+    private int gold = 10;  //적 사망시 획득 가능 골드
+
+    [SerializeField]
     private float enemyRotation;
 
+    //---------- 초기화 -----------
     public void SetUp(EnemySpawner enemySpawner, Transform[] wayPoints)
     {
         movement2D = GetComponent<Movement2D>();
@@ -34,6 +38,7 @@ public class Enemy : MonoBehaviour
         StartCoroutine("OnMove");
     }
 
+    //-------- 적의 이동 목적지 포착 -----------
     private IEnumerator OnMove()
     {
         //스폰 지점 바로 다음 WayPoints 로 다음 방향 이동 설정
@@ -52,6 +57,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    //--------- 적 이동 알고리즘 ----------
     private void NextMoveTo()
     {
         //아직 이동할 WayPoint가 있으면 다음 WayPoint 이동
@@ -67,12 +73,16 @@ public class Enemy : MonoBehaviour
         }
         //적이 End에 도착하면
         else
+        {
+            gold = 0;
             OnDie(EnemyDestroyType.Arrive);
+        }
     }
 
+    // ---------- 적 사망 알고리즘 -----------
     public void OnDie(EnemyDestroyType type)
     {
         //적이 삭제될 때 리스트에서도 제거 해야되기 때문에 여기서 제거하지 않고 EnemySpawner로 넘기기
-        enemySpawner.DestroyEnemy(type, this);
+        enemySpawner.DestroyEnemy(type, this, gold);
     }
 }
