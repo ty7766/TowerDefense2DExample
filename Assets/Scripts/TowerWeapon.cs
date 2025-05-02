@@ -25,13 +25,14 @@ public class TowerWeapon : MonoBehaviour
     private Transform attackTarget = null;                          //공격 대상(2. 적 공격)
     private EnemySpawner enemySpawner;                              //게임에 존재하는 적 정보 획득용
 
+    //---------- 초기화 -------------
     public void SetUp(EnemySpawner enemySpawner)
     {
         this.enemySpawner = enemySpawner;
-        ChangeState(WeaponState.SearchTarget);      //최초 상태를 1. 적 탐지로 설정
+        ChangeState(WeaponState.SearchTarget);      //최초 상태를 [적 탐지] 상태로 설정
     }
 
-    //적이 타워의 사정거리 안으로 들어오면 2. 적 공격 상태로 바꾸기
+    //-----------적이 타워의 사정거리 안으로 들어오면 [적 공격] 상태로 바꾸기 ----------------
     public void ChangeState(WeaponState newState)
     { 
         //(적탐지->적공격) (적공격->적탐지)
@@ -40,13 +41,14 @@ public class TowerWeapon : MonoBehaviour
         StartCoroutine(weaponState.ToString());
     }
 
+    //사정거리 내 적이 들어오면 타워의 시선을 적 방향으로 돌리기
     private void Update()
     {
-        //사정거리 내 적이 들어오면 타워의 시선을 적 방향으로 돌리기
         if (attackTarget != null)
             RotateToTarget();
     }
 
+    //----------- 타워 방향 회전 -------------
     private void RotateToTarget()
     {
         float dx = attackTarget.position.x - transform.position.x;
@@ -55,6 +57,7 @@ public class TowerWeapon : MonoBehaviour
         transform.rotation = Quaternion.Euler(0,0,degree);  //각도 만큼 Z축 회전
     }
 
+    //------------- 적 감지 시스템 --------------
     private IEnumerator SearchTarget()
     {
         while(true)
@@ -82,6 +85,7 @@ public class TowerWeapon : MonoBehaviour
         }
     }
 
+    //------------- 적 공격 시스템 --------------
     private IEnumerator AttackToTarget()
     {
         while(true)
@@ -110,6 +114,7 @@ public class TowerWeapon : MonoBehaviour
         }
     }
 
+    //------------- 탄환 생성 ---------------
     private void SpawnProjectile()
     {
         //생성된 발사체에게 attackTarget 정보 제공

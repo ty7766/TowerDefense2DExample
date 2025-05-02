@@ -14,7 +14,19 @@ public class TextTMPViewer : MonoBehaviour
     [SerializeField]
     private PlayerGold playerGold;
 
-    //-----------플레이어 현재 체력 & 골드 표시-------------
+    //Wave UI
+    [SerializeField]
+    private TextMeshProUGUI textWave;
+    [SerializeField]
+    private WaveSystem waveSystem;
+
+    //EnemyCount UI
+    [SerializeField]
+    private TextMeshProUGUI textEnemyCount;
+    [SerializeField]
+    private EnemySpawner enemySpawner;
+
+    //-----------플레이어 UI 표시-------------
     private void Update()
     {
         //HP 표시
@@ -22,5 +34,11 @@ public class TextTMPViewer : MonoBehaviour
 
         //Gold 표시
         textPlayerGold.text = playerGold.CurrentGold.ToString();
+
+        //Wave 표시
+        textWave.text = waveSystem.CurrentWave + "/" + waveSystem.MaxWave;
+
+        //EnemyCount 표시
+        textEnemyCount.text = enemySpawner.CurrentEnemyCount + "/" + enemySpawner.MaxEnemyCount;
     }
 }
