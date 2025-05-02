@@ -92,7 +92,7 @@ public class TowerWeapon : MonoBehaviour
 
             //2. Target이 타워 사정거리 내에 없으면 탐색으로 전환
             float distance = Vector3.Distance(attackTarget.position, transform.position);
-            if(distance <= attackRange)
+            if(distance > attackRange)
             {
                 attackTarget = null;
                 ChangeState(WeaponState.SearchTarget);
@@ -109,6 +109,8 @@ public class TowerWeapon : MonoBehaviour
 
     private void SpawnProjectile()
     {
-        Instantiate(projectilePrefab, spawnPoint.position, Quaternion.identity);
+        //생성된 발사체에게 attackTarget 정보 제공
+        GameObject clone = Instantiate(projectilePrefab, spawnPoint.position, Quaternion.identity);
+        clone.GetComponent<Projectile>().SetUp(attackTarget);
     }
 }

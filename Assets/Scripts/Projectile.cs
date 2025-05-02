@@ -33,7 +33,7 @@ public class Projectile : MonoBehaviour
         if (!collision.CompareTag("Enemy")) return; //적이 아닌 대상과 부딪힘
         if (collision.transform != target) return;  //현재 target인 적이 아님
 
-        //탄환이 명중하면 적 삭제면
+        //탄환이 명중하면 적 삭제 & 탄환 삭제
         collision.GetComponent<Enemy>().OnDie();
         Destroy(gameObject);
     }
