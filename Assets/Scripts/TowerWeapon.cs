@@ -11,24 +11,35 @@ public enum WeaponState { SearchTarget = 0, AttackToTarget}
 public class TowerWeapon : MonoBehaviour
 {
     [SerializeField]
+    private TowerTemplate towerTemplate;                            // 타워 정보
+    [SerializeField]
     private GameObject projectilePrefab;                            //발사체
     [SerializeField]
     private Transform spawnPoint;                                   //발사체 생성 위치
-    [SerializeField]
-    private float attackRate = 0.5f;                                //공격 속도
-    [SerializeField]
-    private float attackRange = 2.0f;                               //공격 범위
-    [SerializeField]
-    private int attackDamage = 1;                                 //공격 대미지
 
+    private int level = 0;                                          //타워 레벨
     private WeaponState weaponState = WeaponState.SearchTarget;     //타워 무기 상태 (1. 적 탐지)
     private Transform attackTarget = null;                          //공격 대상(2. 적 공격)
     private EnemySpawner enemySpawner;                              //게임에 존재하는 적 정보 획득용
+    private SpriteRenderer spriteRenderer;                          //타워 오브젝트 이미지 변경용
+    private PlayerGold PlayerGold;                                  //플레이어 골드 정보
+
+    //Property
+    public Sprite TowerSprite => towerTemplate.weapon[level].sprite;
+    public float Damage => towerTemplate.weapon[level].damage;
+    public float Rate => towerTemplate.weapon[level].rate;
+    public float Range => towerTemplate.weapon[level].range;
+    public int Level => level + 1;
+    public int MaxLevel => towerTemplate.weapon.Length;
+
 
     //---------- 초기화 -------------
-    public void SetUp(EnemySpawner enemySpawner)
+    public void SetUp(EnemySpawner enemySpawner, PlayerGold playerGold)
     {
+        spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
+        this.PlayerGold = playerGold;
         this.enemySpawner = enemySpawner;
+
         ChangeState(WeaponState.SearchTarget);      //최초 상태를 [적 탐지] 상태로 설정
     }
 
@@ -71,7 +82,7 @@ public class TowerWeapon : MonoBehaviour
                 //적과 타워의 거리 계산
                 float distance = Vector3.Distance(enemySpawner.EnemyList[i].transform.position, transform.position);
                 //사정 거리 내 적이 있고, 현재까지 검사한 적보다 거리가 가까우면
-                if(distance <= attackRange && distance <= closestDistSqr)
+                if (distance <= towerTemplate.weapon[level].range && distance <= closestDistSqr)
                 {
                     closestDistSqr = distance;
                     attackTarget = enemySpawner.EnemyList[i].transform;
@@ -99,7 +110,7 @@ public class TowerWeapon : MonoBehaviour
 
             //2. Target이 타워 사정거리 내에 없으면 탐색으로 전환
             float distance = Vector3.Distance(attackTarget.position, transform.position);
-            if(distance > attackRange)
+            if(distance > towerTemplate.weapon[level].range)
             {
                 attackTarget = null;
                 ChangeState(WeaponState.SearchTarget);
@@ -107,7 +118,7 @@ public class TowerWeapon : MonoBehaviour
             }
 
             //3. 공격속도만큼 대기
-            yield return new WaitForSeconds(attackRate);
+            yield return new WaitForSeconds(towerTemplate.weapon[level].rate);
 
             //4. 발사
             SpawnProjectile();
@@ -119,6 +130,20 @@ public class TowerWeapon : MonoBehaviour
     {
         //생성된 발사체에게 attackTarget 정보 제공
         GameObject clone = Instantiate(projectilePrefab, spawnPoint.position, Quaternion.identity);
-        clone.GetComponent<Projectile>().SetUp(attackTarget, attackDamage);
+        clone.GetComponent<Projectile>().SetUp(attackTarget, towerTemplate.weapon[level].damage);
+    }
+
+    //---------------- 타워 업그레이드 시스템 -----------------
+    public bool Upgrade()
+    {
+        //타워 업그레이드 돈이 충분한지 검사
+        if (PlayerGold.CurrentGold < towerTemplate.weapon[level + 1].cost)
+            return false;
+
+        level++;
+        spriteRenderer.sprite = towerTemplate.weapon[level].sprite;
+        PlayerGold.CurrentGold -= towerTemplate.weapon[level].cost;
+
+        return true;
     }
 }

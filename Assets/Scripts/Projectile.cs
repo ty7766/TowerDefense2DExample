@@ -1,18 +1,21 @@
 using UnityEngine;
 
+//탄환 클래스
 public class Projectile : MonoBehaviour
 {
     private Movement2D  movement2D;
     private Transform   target;
-    private int         damage;
+    private float       damage;
 
-    public void SetUp(Transform target, int damage)
+    //------------ 초기화 ---------------
+    public void SetUp(Transform target, float damage)
     {
         movement2D = GetComponent<Movement2D>();
         this.target = target;
         this.damage = damage;
     }
 
+    //--------------- 적 오브젝트에 탄환 이동 -----------------
     private void Update()
     {
         //target이 존재하면 탄환을 target의 위치로 이동
