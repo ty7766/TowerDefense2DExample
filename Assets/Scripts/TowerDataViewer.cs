@@ -65,4 +65,18 @@ public class TowerDataViewer : MonoBehaviour
         //타워 레벨이 최대가 되면 업그레이드 버튼 비활성화
         buttonUpgrade.interactable = currentTower.Level < currentTower.MaxLevel ? true : false;
     }
+
+    public void OnClickEventTowerUpgrade()
+    {
+        //타워 업그레이드가 되었는지 확인
+        bool isSuccess = currentTower.Upgrade();
+
+        if (isSuccess)
+        {
+            //타워 정보 및 범위 이미지 갱신
+            UpdateTowerData();
+            towerAttackRange.OnAttackRange(currentTower.transform.position, currentTower.Range);
+        }
+        else { }
+    }
 }

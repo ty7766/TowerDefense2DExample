@@ -24,7 +24,7 @@ public class ObjectDetector : MonoBehaviour
      * 2. 카메라 -> 마우스 포인터 를 관통하는 광선(화면을 수직으로 뚫는) 발사
      * 3. Tile과 광선이 접촉되면 해당 Tile에 Tower를 생성
      * */
-    void Update()
+    private void Update()
     {
         //마우스 왼쪽버튼 눌렀을 때
         if (Input.GetMouseButton(0))
@@ -37,10 +37,13 @@ public class ObjectDetector : MonoBehaviour
                 //적중된 오브젝트 태그가 "Tile" 이면 
                 if (hit.transform.CompareTag("Tile"))
                     towerSpawner.SpawnTower(hit.transform);
+
+                //타워를 선택하면 해당 타워 정보 출력
+                else if (hit.transform.CompareTag("Tower"))
+                {
+                    towerDataViewer.OnPanel(hit.transform);
+                }
             }
-            //타워를 선택하면 해당 타워 정보 출력
-            else if (hit.transform.CompareTag("Tower"))
-                towerDataViewer.OnPanel(hit.transform);
         }
 
     }
