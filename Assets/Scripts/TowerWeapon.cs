@@ -36,7 +36,7 @@ public class TowerWeapon : MonoBehaviour
     //---------- √ ±‚»≠ -------------
     public void SetUp(EnemySpawner enemySpawner, PlayerGold playerGold)
     {
-        spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
+        spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         this.PlayerGold = playerGold;
         this.enemySpawner = enemySpawner;
 

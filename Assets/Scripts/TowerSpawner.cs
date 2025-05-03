@@ -30,7 +30,7 @@ public class TowerSpawner : MonoBehaviour
         playerGold.CurrentGold -= towerTemplate.weapon[0].cost;
         //선택한 타일 위치에 타워 건설 (타일보다 z축 -1 위치에 배치) (타워가 우선선택됨)
         Vector3 position = tileTransform.position + Vector3.back;
-        GameObject clone = Instantiate(towerTemplate.towerPrefab, tileTransform.position, Quaternion.identity);
+        GameObject clone = Instantiate(towerTemplate.towerPrefab, position, Quaternion.identity);
         //생성된 타워 무기에 enemySpawner 정보 전달
         clone.GetComponent<TowerWeapon>().SetUp(enemySpawner, playerGold);
     }

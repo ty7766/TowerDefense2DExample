@@ -34,14 +34,18 @@ public class ObjectDetector : MonoBehaviour
             //광선의 길이를 최대로 늘리고 광선에 적중된 오브젝트 검출 -> hit에 저장
             if (Physics.Raycast(ray, out hit, Mathf.Infinity))
             {
+                //타워를 선택하면 해당 타워 정보 출력
+                if (hit.transform.CompareTag("Tower"))
+                {
+                    Debug.Log("타워 클릭됨: " + hit.transform.name);
+                    towerDataViewer.OnPanel(hit.transform);
+                }
+
                 //적중된 오브젝트 태그가 "Tile" 이면 
                 if (hit.transform.CompareTag("Tile"))
-                    towerSpawner.SpawnTower(hit.transform);
-
-                //타워를 선택하면 해당 타워 정보 출력
-                else if (hit.transform.CompareTag("Tower"))
                 {
-                    towerDataViewer.OnPanel(hit.transform);
+                    Debug.Log("타일 클릭됨: ");
+                    towerSpawner.SpawnTower(hit.transform);
                 }
             }
         }
