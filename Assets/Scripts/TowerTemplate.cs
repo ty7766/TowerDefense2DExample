@@ -17,5 +17,6 @@ public class TowerTemplate : ScriptableObject //(에셋 생성을 위함)
         public float rate;          //타워 공격속도
         public float range;         //타워 공격범위
         public int cost;            //필요 골드 (0레벨 : 건설, 1~레벨 : 업그레이드)
+        public int sell;            //타워 판매 금액
     }
 }

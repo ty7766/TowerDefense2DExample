@@ -18,6 +18,8 @@ public class TowerDataViewer : MonoBehaviour
     private TowerAttackRange towerAttackRange;
     [SerializeField]
     private Button buttonUpgrade;
+    [SerializeField]
+    private SystemTextViewer systemTextViewer;
 
     private TowerWeapon currentTower;
 
@@ -77,6 +79,16 @@ public class TowerDataViewer : MonoBehaviour
             UpdateTowerData();
             towerAttackRange.OnAttackRange(currentTower.transform.position, currentTower.Range);
         }
-        else { }
+        else
+        {
+            systemTextViewer.PrintText(SystemType.Money);
+        }
+    }
+
+    public void OnClickEventTowerSell()
+    {
+        //타워 판매 및 타워의 UI 삭제
+        currentTower.Sell();
+        OffPanel();
     }
 }

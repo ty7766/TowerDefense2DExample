@@ -23,6 +23,7 @@ public class TowerWeapon : MonoBehaviour
     private EnemySpawner enemySpawner;                              //게임에 존재하는 적 정보 획득용
     private SpriteRenderer spriteRenderer;                          //타워 오브젝트 이미지 변경용
     private PlayerGold PlayerGold;                                  //플레이어 골드 정보
+    private Tile ownerTile;                                         //현재 타워가 배치되어있는 타일
 
     //Property
     public Sprite TowerSprite => towerTemplate.weapon[level].sprite;
@@ -34,11 +35,12 @@ public class TowerWeapon : MonoBehaviour
 
 
     //---------- 초기화 -------------
-    public void SetUp(EnemySpawner enemySpawner, PlayerGold playerGold)
+    public void SetUp(EnemySpawner enemySpawner, PlayerGold playerGold, Tile ownerTile)
     {
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         this.PlayerGold = playerGold;
         this.enemySpawner = enemySpawner;
+        this.ownerTile = ownerTile;
 
         ChangeState(WeaponState.SearchTarget);      //최초 상태를 [적 탐지] 상태로 설정
     }
@@ -145,5 +147,14 @@ public class TowerWeapon : MonoBehaviour
         PlayerGold.CurrentGold -= towerTemplate.weapon[level].cost;
 
         return true;
+    }
+
+    //------------- 타워 판매 시스템 ---------------
+    public void Sell()
+    {
+        //판매 금액만큼 골드를 추가하고 타일 초기화 및 타워 삭제
+        PlayerGold.CurrentGold += towerTemplate.weapon[level].sell;
+        ownerTile.IsBulidTower = false;
+        Destroy(gameObject);
     }
 }

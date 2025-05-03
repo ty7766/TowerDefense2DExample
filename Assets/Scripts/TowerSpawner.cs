@@ -11,18 +11,27 @@ public class TowerSpawner : MonoBehaviour
     [SerializeField]
     private PlayerGold playerGold;      //플레이어 골드에서 타워 건설비 차감용
 
+    [SerializeField]
+    private SystemTextViewer systemTextViewer;      //돈 부족, 건설 불가 와 같은 메세지 출력
+
     //---------- 타워 설치 --------------
     public void SpawnTower(Transform tileTransform)
     {
-        //타워를 건설할 돈이 없으면 반응 무시
+        //타워를 건설할 돈이 없으면 시스템 메시지 출력
         if (towerTemplate.weapon[0].cost > playerGold.CurrentGold)
+        {
+            systemTextViewer.PrintText(SystemType.Money);
             return;
+        }
 
         //타일 정보 불러오기
         Tile tile = tileTransform.GetComponent<Tile>();
-        //이미 타일에 타워가 있다면 반응 무시
+        //이미 타일에 타워가 있다면 시스템 메시지 출력
         if (tile.IsBulidTower == true)
+        {
+            systemTextViewer.PrintText(SystemType.Build);
             return;
+        }
 
         //타워 건설 확정
         tile.IsBulidTower = true;
@@ -32,6 +41,6 @@ public class TowerSpawner : MonoBehaviour
         Vector3 position = tileTransform.position + Vector3.back;
         GameObject clone = Instantiate(towerTemplate.towerPrefab, position, Quaternion.identity);
         //생성된 타워 무기에 enemySpawner 정보 전달
-        clone.GetComponent<TowerWeapon>().SetUp(enemySpawner, playerGold);
+        clone.GetComponent<TowerWeapon>().SetUp(enemySpawner, playerGold, tile);
     }
 }
