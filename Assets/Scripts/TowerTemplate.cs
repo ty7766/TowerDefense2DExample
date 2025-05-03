@@ -5,6 +5,9 @@ using UnityEngine;
 public class TowerTemplate : ScriptableObject //(에셋 생성을 위함)
 {
     public GameObject towerPrefab;  //타워 프리팹
+
+    //타워 건설을 클릭했을 때 사용자에게 잘 클릭이 되어있는지 확인을 위한 프리팹
+    public GameObject followTowerPrefab;        //임시 타워 프리팹
     public Weapon[] weapon;         //타워 정보 구조체
 
 
