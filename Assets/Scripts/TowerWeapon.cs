@@ -1,8 +1,9 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.XR;
+using UnityEditor.Analytics;
 
-public enum WeaponType { Cannon = 0, Laser, Slow, }
+public enum WeaponType { Cannon = 0, Laser, Slow, Buff, }
 public enum WeaponState { SearchTarget = 0, TryAttackCannon, TryAttackLaser,}
 
 //타워의 행동
@@ -36,8 +37,12 @@ public class TowerWeapon : MonoBehaviour
     private Transform attackTarget = null;                          //공격 대상(2. 적 공격)
     private EnemySpawner enemySpawner;                              //게임에 존재하는 적 정보 획득용
     private SpriteRenderer spriteRenderer;                          //타워 오브젝트 이미지 변경용
-    private PlayerGold PlayerGold;                                  //플레이어 골드 정보
+    private TowerSpawner towerSpawner;
+    private PlayerGold playerGold;                                  //플레이어 골드 정보
     private Tile ownerTile;                                         //현재 타워가 배치되어있는 타일
+
+    private float addedDamage;                                      //버프 데미지
+    private int buffLevel;                                          //버프받는지 여부(0 ~ 3)
 
     //Property
     public Sprite TowerSprite => towerTemplate.weapon[level].sprite;
@@ -45,16 +50,31 @@ public class TowerWeapon : MonoBehaviour
     public float Rate => towerTemplate.weapon[level].rate;
     public float Range => towerTemplate.weapon[level].range;
     public float Slow => towerTemplate.weapon[level].slow;
+    public float Buff => towerTemplate.weapon[level].buff;
+    public int UpgradeCost => Level < MaxLevel ? towerTemplate.weapon[level + 1].cost : 0;
+    public int SellCost => towerTemplate.weapon[level].sell;
     public int Level => level + 1;
     public int MaxLevel => towerTemplate.weapon.Length;
     public WeaponType WeaponType => weaponType;
 
+    public float AddedDamage
+    {
+        set => addedDamage = Mathf.Max(0, value);
+        get => addedDamage;
+    }
+    public int BuffLevel
+    {
+        set => buffLevel = Mathf.Max(0,value);
+        get => buffLevel;
+    }
+
 
     //---------- 초기화 -------------
-    public void SetUp(EnemySpawner enemySpawner, PlayerGold playerGold, Tile ownerTile)
+    public void SetUp(TowerSpawner towerspawner, EnemySpawner enemySpawner, PlayerGold playerGold, Tile ownerTile)
     {
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
-        this.PlayerGold = playerGold;
+        this.towerSpawner = towerspawner;
+        this.playerGold = playerGold;
         this.enemySpawner = enemySpawner;
         this.ownerTile = ownerTile;
 
@@ -198,6 +218,8 @@ public class TowerWeapon : MonoBehaviour
     {
         //생성된 발사체에게 attackTarget 정보 제공
         GameObject clone = Instantiate(projectilePrefab, spawnPoint.position, Quaternion.identity);
+        //발사체에 버프 공격력 부여
+        float damage = towerTemplate.weapon[level].damage + AddedDamage;
         clone.GetComponent<Projectile>().SetUp(attackTarget, towerTemplate.weapon[level].damage);
     }
 
@@ -234,21 +256,52 @@ public class TowerWeapon : MonoBehaviour
                 //타격 효과 위치 설정
                 hitEffect.position = hit[i].point;
                 //적 체력 감소 알고리즘(틱당 damage 적용)
+                //레이저에 버프 공격력 부여
+                float damage = towerTemplate.weapon[level].damage + AddedDamage;
                 attackTarget.GetComponent<EnemyHP>().TakeDamage(towerTemplate.weapon[level].damage * Time.deltaTime);
             }
         }
     }
 
+    //------------------ 버프 시스템 알고리즘 --------------------
+    public void OnBuffAroundTower()
+    {
+        //현재 맵에 배치된 모든 Tower 태그 오브젝트 탐색
+        GameObject[] towers = GameObject.FindGameObjectsWithTag("Tower");
+
+        for (int i = 0; i < towers.Length; ++i)
+        {
+            TowerWeapon weapon = towers[i].GetComponent<TowerWeapon>();
+
+            //이미 버프를 받고 있고 현재 버프 타워의 레벨보다 높은 버프이면 무시
+            if (weapon.buffLevel > Level)
+                continue;
+
+            //현재 버프 타워와 다른 타워의 거리를 검사해서 범위 안에 타워가 있으면
+            if (Vector3.Distance(weapon.transform.position, transform.position) <= 
+                towerTemplate.weapon[level].range)
+            {
+                //레이저, 캐논 타워이면
+                if (weapon.WeaponType == WeaponType.Cannon || weapon.WeaponType == WeaponType.Laser)
+                {
+                    //공격력 버프 주기
+                    weapon.AddedDamage = weapon.Damage * (towerTemplate.weapon[level].buff);
+                    weapon.BuffLevel = Level;
+                }
+            }
+
+        }
+    }
     //---------------- 타워 업그레이드 시스템 -----------------
     public bool Upgrade()
     {
         //타워 업그레이드 돈이 충분한지 검사
-        if (PlayerGold.CurrentGold < towerTemplate.weapon[level + 1].cost)
+        if (playerGold.CurrentGold < towerTemplate.weapon[level + 1].cost)
             return false;
 
         level++;
         spriteRenderer.sprite = towerTemplate.weapon[level].sprite;
-        PlayerGold.CurrentGold -= towerTemplate.weapon[level].cost;
+        playerGold.CurrentGold -= towerTemplate.weapon[level].cost;
 
         //무기 속성이 레이저이면
         if (weaponType == WeaponType.Laser)
@@ -257,6 +310,9 @@ public class TowerWeapon : MonoBehaviour
             lineRenderer.startWidth = 0.05f + level * 0.05f;
             lineRenderer.endWidth = 0.05f;
         }
+
+        //타워가 업그레이드 될 때 모든 버프 타워 버프효과 갱신
+        towerSpawner.OnBuffAllBuffTowers();
         return true;
     }
 
@@ -264,7 +320,7 @@ public class TowerWeapon : MonoBehaviour
     public void Sell()
     {
         //판매 금액만큼 골드를 추가하고 타일 초기화 및 타워 삭제
-        PlayerGold.CurrentGold += towerTemplate.weapon[level].sell;
+        playerGold.CurrentGold += towerTemplate.weapon[level].sell;
         ownerTile.IsBulidTower = false;
         Destroy(gameObject);
     }
