@@ -8,10 +8,17 @@ public class Movement2D : MonoBehaviour
     [SerializeField]
     private Vector3 moveDirection = Vector3.zero;
 
-    public float MoveSpeed => moveSpeed;
-    void Start()
+    private float baseMoveSpeed;        //SlowTower¿ë
+
+    public float MoveSpeed
     {
-        
+        set => moveSpeed = Mathf.Max(0,value);
+        get => moveSpeed;
+    }
+
+    private void Awake()
+    {
+        baseMoveSpeed = MoveSpeed;
     }
 
     // Update is called once per frame
@@ -24,5 +31,10 @@ public class Movement2D : MonoBehaviour
     public void MoveTo(Vector3 direction)
     {
         moveDirection = direction;
+    }
+
+    public void ResetMoveSpeed()
+    {
+        moveSpeed = baseMoveSpeed;
     }
 }

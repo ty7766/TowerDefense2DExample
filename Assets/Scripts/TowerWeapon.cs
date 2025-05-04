@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.XR;
 
-public enum WeaponType { Cannon = 0, Laser,}
+public enum WeaponType { Cannon = 0, Laser, Slow, }
 public enum WeaponState { SearchTarget = 0, TryAttackCannon, TryAttackLaser,}
 
 //타워의 행동
@@ -44,8 +44,10 @@ public class TowerWeapon : MonoBehaviour
     public float Damage => towerTemplate.weapon[level].damage;
     public float Rate => towerTemplate.weapon[level].rate;
     public float Range => towerTemplate.weapon[level].range;
+    public float Slow => towerTemplate.weapon[level].slow;
     public int Level => level + 1;
     public int MaxLevel => towerTemplate.weapon.Length;
+    public WeaponType WeaponType => weaponType;
 
 
     //---------- 초기화 -------------
@@ -56,7 +58,11 @@ public class TowerWeapon : MonoBehaviour
         this.enemySpawner = enemySpawner;
         this.ownerTile = ownerTile;
 
-        ChangeState(WeaponState.SearchTarget);      //최초 상태를 [적 탐지] 상태로 설정
+        //무기 속성이 공격하지 않는 타워면 [탐지 <-> 공격] 전환이 필요 없으므로
+        if(weaponType == WeaponType.Cannon || weaponType == WeaponType.Laser)
+        {
+            ChangeState(WeaponState.SearchTarget);
+        }
     }
 
     //-----------적이 타워의 사정거리 안으로 들어오면 [적 공격] 상태로 바꾸기 ----------------
